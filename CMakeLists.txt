@@ -13,7 +13,7 @@ add_definitions(-DAPP_VERSION="${PvRec_VERSION}")
 
 # Find libraries -----------------------------------------------------------
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(CFITSIO)
 if(CFITSIO_FOUND)
