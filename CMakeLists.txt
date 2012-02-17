@@ -3,13 +3,11 @@ project(PvRec)
 
 # Version informations -----------------------------------------------------
 
-set(PvRec_VERSION_MAJOR 1)
-set(PvRec_VERSION_MINOR 0)
-set(PvRec_VERSION_RELEASE 0)
-set(PvRec_VERSION "${PvRec_VERSION_MAJOR}.${PvRec_VERSION_MINOR}.${PvRec_VERSION_RELEASE}")
-
-# TODO: Use a config file
-add_definitions(-DAPP_VERSION="${PvRec_VERSION}")
+set(PVREC_VERSION_MAJOR 1)
+set(PVREC_VERSION_MINOR 0)
+set(PVREC_VERSION_RELEASE 0)
+set(PVREC_VERSION_STRING "${PVREC_VERSION_MAJOR}.${PVREC_VERSION_MINOR}.${PVREC_VERSION_RELEASE}")
+configure_file(src/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
 
 # Find libraries -----------------------------------------------------------
 
@@ -37,6 +35,8 @@ else()
 endif()
 
 # Build --------------------------------------------------------------------
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(PvRec_SRCS
     src/pvrec.cpp

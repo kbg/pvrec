@@ -25,6 +25,7 @@
 
 #include "recorder.h"
 #include "cmdopts.h"
+#include "version.h"
 
 #include <string>
 #include <vector>
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
         cout << opts.help() << endl;
         return E_OK;
     case CmdLineOptions::Version:
-        cout << "PvRec version " << APP_VERSION << endl;
+        cout << "PvRec version " << PVREC_VERSION_STRING << endl;
         return E_OK;
     }
 

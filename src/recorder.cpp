@@ -26,6 +26,7 @@
 #include "recorder.h"
 #include "pvutils.h"
 #include "fitswriter.h"
+#include "version.h"
 
 #include <cassert>
 #include <sstream>
@@ -308,7 +309,7 @@ bool Recorder::record(const std::string &fname, int numFrames, bool clobber)
 
 #ifdef APP_VERSION
     // write program version to the FITS header
-    std::string creator = std::string("PvRec v") + APP_VERSION;
+    std::string creator = std::string("PvRec v") + PVREC_VERSION_STRING;
     if (!writer.writeKey(TSTRING, "CREATOR",
                          const_cast<char*>(creator.c_str()),
                          "program that created this file"))
