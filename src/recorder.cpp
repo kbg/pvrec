@@ -307,7 +307,6 @@ bool Recorder::record(const std::string &fname, int numFrames, bool clobber)
         return false;
     }
 
-#ifdef APP_VERSION
     // write program version to the FITS header
     std::string creator = std::string("PvRec v") + PVREC_VERSION_STRING;
     if (!writer.writeKey(TSTRING, "CREATOR",
@@ -319,7 +318,6 @@ bool Recorder::record(const std::string &fname, int numFrames, bool clobber)
         PvCaptureEnd(m_device);
         return false;
     }
-#endif
 
     // write settings to the FITS header
     double expTime = exposureTime();
