@@ -528,6 +528,36 @@ double Recorder::bandwidth() const
     return (err == ePvErrSuccess) ? double(value) / 1e6 : 0.0;
 }
 
+int Recorder::sensorWidth() const
+{
+    return m_sensorWidth;
+}
+
+int Recorder::sensorHeight() const
+{
+    return m_sensorHeight;
+}
+
+int Recorder::sensorBits() const
+{
+    return m_sensorBits;
+}
+
+size_t Recorder::numBuffers() const
+{
+    return m_numBuffers;
+}
+
+std::string Recorder::ipAddress() const
+{
+    return m_ipAddress;
+}
+
+tPvCameraInfoEx Recorder::cameraInfo() const
+{
+    return m_camInfo;
+}
+
 Recorder::CameraInfoVector Recorder::availableCameras(int timeout) const
 {
     // try to find a camera for timeout miliseconds
@@ -551,38 +581,6 @@ Recorder::CameraInfoVector Recorder::availableCameras(int timeout) const
 
     delete [] camInfos;
     return result;
-}
-
-std::string Recorder::cameraInfoStr() const
-{
-    if (!isCameraOpen())
-        return "";
-
-    std::stringstream ss;
-    ss << "        UniqueId: " << m_camInfo.UniqueId << "\n"
-       << "      CameraName: " << m_camInfo.CameraName << "\n"
-       << "       ModelName: " << m_camInfo.ModelName << "\n"
-       << "    SerialNumber: " << m_camInfo.SerialNumber << "\n"
-       << " FirmwareVersion: " << m_camInfo.FirmwareVersion << "\n"
-       << "      IP Address: " << m_ipAddress << "\n"
-       << "          Sensor: " << m_sensorWidth << "x" << m_sensorHeight
-                                 << "@" << m_sensorBits;
-    return ss.str();
-}
-
-std::string Recorder::cameraSettingsStr() const
-{
-    if (!isCameraOpen())
-        return "";
-
-    std::stringstream ss;
-    ss << "       FrameRate: " << frameRate() << " Hz (max)\n"
-       << "    ExposureTime: " << exposureTime() << " ms\n"
-       << "     PixelFormat: " << pixelFormat() << "\n"
-       << "         Buffers: " << m_numBuffers << "\n"
-       << "      PacketSize: " << packetSize() << " bytes\n"
-       << "       Bandwidth: " << bandwidth() << " MB/s";
-    return ss.str();
 }
 
 std::string Recorder::apiVersionStr() const

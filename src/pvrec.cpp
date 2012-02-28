@@ -78,7 +78,17 @@ int main(int argc, char **argv)
 
     cout << endl;
     cout << "Camera Infos --------------------------" << endl;
-    cout << rec.cameraInfoStr() << endl;
+    tPvCameraInfoEx camInfo = rec.cameraInfo();
+    cout << "        UniqueId: " << camInfo.UniqueId << "\n"
+         << "      CameraName: " << camInfo.CameraName << "\n"
+         << "       ModelName: " << camInfo.ModelName << "\n"
+         << "    SerialNumber: " << camInfo.SerialNumber << "\n"
+         << " FirmwareVersion: " << camInfo.FirmwareVersion << "\n"
+         << "      IP Address: " << rec.ipAddress() << "\n"
+         << "          Sensor: " << rec.sensorWidth() << "x"
+                                 << rec.sensorHeight() << "@"
+                                 << rec.sensorBits()
+         << endl;
 
     if (!rec.setFrameRate(opts.frameRate) ||
         !rec.setExposureTime(opts.exposureTime) ||
@@ -92,9 +102,15 @@ int main(int argc, char **argv)
 
     cout << endl;
     cout << "Settings ------------------------------" << endl;
-    cout << rec.cameraSettingsStr() << endl;
-    cout << endl;
+    cout << "       FrameRate: " << rec.frameRate() << " Hz (max)\n"
+         << "    ExposureTime: " << rec.exposureTime() << " ms\n"
+         << "     PixelFormat: " << rec.pixelFormat() << "\n"
+         << "         Buffers: " << rec.numBuffers() << "\n"
+         << "      PacketSize: " << rec.packetSize() << " bytes\n"
+         << "       Bandwidth: " << rec.bandwidth() << " MB/s"
+         << endl;
 
+    cout << endl;
     cout << "Recording " << opts.numFrames << " frame"
          << (opts.numFrames != 1 ? "s" : "")
          << " to '" << opts.fname << "':" << endl;

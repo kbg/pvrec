@@ -63,11 +63,16 @@ public:
     bool setBandwidth(double bandwidth);
     double bandwidth() const;
 
+    int sensorWidth() const;
+    int sensorHeight() const;
+    int sensorBits() const;
+    size_t numBuffers() const;
+    std::string ipAddress() const;
+    tPvCameraInfoEx cameraInfo() const;
+
     typedef std::vector<tPvCameraInfoEx> CameraInfoVector;
     CameraInfoVector availableCameras(int timeout = 3000) const;
 
-    std::string cameraInfoStr() const;
-    std::string cameraSettingsStr() const;
     std::string apiVersionStr() const;
     std::string lastError() const;
 
