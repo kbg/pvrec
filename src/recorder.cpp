@@ -63,38 +63,26 @@ bool Recorder::openCamera()
 
     assert(m_device == 0);
     
-    // try to find a camera for at most 3000ms
-    unsigned long camCount = 0;
-    for (int i = 0; i < 30 && camCount < 1; ++i) {
-        camCount = PvCameraCount();
-        msleep(100);
-    }
-
-    if (camCount < 1) {
+    CameraInfoVector camInfoVec = availableCameras();
+    if (camInfoVec.size() < 1) {
         setError("No camera found.");
         return false;
     }
 
-    tPvCameraInfoEx *camInfos = new tPvCameraInfoEx[camCount];
-    unsigned long n = PvCameraListEx(camInfos, camCount, 0,
-                                     sizeof(tPvCameraInfoEx));
-
     // try to open the first camera with master access
     tPvErr err = ePvErrSuccess;
-    for (unsigned long i = 0; i < n && !m_device; ++i)
+    CameraInfoVector::const_iterator it = camInfoVec.begin();
+    for (; it != camInfoVec.end() && !m_device; ++it)
     {
-        tPvCameraInfoEx *info = camInfos + i;
-        if ((info->PermittedAccess & ePvAccessMaster))
+        if (it->PermittedAccess & ePvAccessMaster)
         {
-            err = PvCameraOpen(info->UniqueId, ePvAccessMaster, &m_device);
+            err = PvCameraOpen(it->UniqueId, ePvAccessMaster, &m_device);
             if (err != ePvErrSuccess)
                 m_device = 0;
             else
-                m_camInfo = *info;
+                m_camInfo = *it;
         }
     }
-
-    delete [] camInfos;
 
     if (!m_device) {
         clearCameraInfo();
@@ -538,6 +526,31 @@ double Recorder::bandwidth() const
     tPvUint32 value;
     tPvErr err = PvAttrUint32Get(m_device, "StreamBytesPerSecond", &value);
     return (err == ePvErrSuccess) ? double(value) / 1e6 : 0.0;
+}
+
+Recorder::CameraInfoVector Recorder::availableCameras(int timeout) const
+{
+    // try to find a camera for timeout miliseconds
+    int numLoops = timeout / 100;
+    unsigned long camCount = 0;
+    for (int i = 0; i < numLoops && camCount < 1; ++i) {
+        camCount = PvCameraCount();
+        msleep(100);
+    }
+
+    if (camCount < 1)
+        return CameraInfoVector();
+
+    tPvCameraInfoEx *camInfos = new tPvCameraInfoEx[camCount];
+    unsigned long n = PvCameraListEx(camInfos, camCount, 0,
+                                     sizeof(tPvCameraInfoEx));
+
+    CameraInfoVector result;
+    for (unsigned long i = 0; i < n; ++i)
+        result.push_back(*(camInfos + i));
+
+    delete [] camInfos;
+    return result;
 }
 
 std::string Recorder::cameraInfoStr() const
