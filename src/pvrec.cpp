@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     cout << "PvApi Version: " << rec.apiVersionStr() << endl;
 
     cout << "Opening camera... " << flush;
-    if (!rec.openCamera()) {
+    if (!rec.openCamera(opts.cameraId)) {
         cout << endl;
         cerr << "Error: " << rec.lastError() << endl;
         return E_ERR_OPEN;

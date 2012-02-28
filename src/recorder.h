@@ -38,7 +38,7 @@ public:
     explicit Recorder(int numBuffers = 3);
     virtual ~Recorder();
 
-    bool openCamera();
+    bool openCamera(unsigned long camId = 0);
     void closeCamera();
     bool isCameraOpen() const;
 

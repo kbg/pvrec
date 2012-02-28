@@ -34,6 +34,7 @@ static const int DefaultNumFrames = 1;
 static const float DefaultFrameRate = 20.0;
 static const double DefaultExposureTime = 15.0;
 static const int DefaultPixelBits = 8;
+static const int DefaultCameraId = 0;
 static const std::string DefaultPixelFormat = "Mono8";
 static const int DefaultNumBuffers = 10;
 static const unsigned int DefaultPacketSize = 0;
@@ -53,6 +54,7 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
       frameRate(DefaultFrameRate),
       exposureTime(DefaultExposureTime),
       pixelFormat(DefaultPixelFormat),
+      cameraId(DefaultCameraId),
       packetSize(DefaultPacketSize),
       bandwidth(DefaultBandwidth),
       numBuffers(DefaultNumBuffers),
@@ -64,12 +66,13 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
 
 CmdLineOptions::Result CmdLineOptions::parse()
 {
-    static const char *short_opts = "n:r:e:b:N:m:B:fVh";
+    static const char *short_opts = "n:r:e:b:c:N:m:B:fVh";
     static const struct option long_opts[] = {
         { "count", required_argument, 0, 'n' },
         { "framerate", required_argument, 0, 'r' },
         { "exposure", required_argument, 0, 'e' },
         { "bits", required_argument, 0, 'b' },
+        { "camera", required_argument, 0, 'c' },
         { "buffers", required_argument, 0, 'N' },
         { "mtu", required_argument, 0, 'm' },
         { "bandwidth", required_argument, 0, 'B' },
@@ -130,6 +133,13 @@ CmdLineOptions::Result CmdLineOptions::parse()
                 pixelFormat = "Mono16";
             else {
                 cerr << m_appName << ": -b must be 8 or 16" << endl;
+                return Error;
+            }
+            break;
+        case 'c':
+            if (!fromString(cameraId, optarg)) {
+                cerr << m_appName << ": -c must be an unsigned integer."
+                     << endl;
                 return Error;
             }
             break;
@@ -204,6 +214,7 @@ std::string CmdLineOptions::help() const
        << "  -r, --framerate   Maximum frame rate in Hz (default: " << DefaultFrameRate << ")\n"
        << "  -e, --exposure    Exposure time in ms (default: " << DefaultExposureTime << ")\n"
        << "  -b, --bits        Bits per pixel, 8 or 16 (default: " << DefaultPixelBits << ")\n"
+       << "  -c, --camera      Select camera by its unique ID (default: auto)\n"
        << "  -N, --buffers     Number of frame buffers (default: " << DefaultNumBuffers << ")\n"
        << "  -m, --mtu         Packet size (default: auto)\n"
        << "  -B, --bandwidth   Stream bandwidth in MB/s (default: " << DefaultBandwidth << ")\n"

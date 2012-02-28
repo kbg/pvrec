@@ -46,6 +46,7 @@ public:
     float frameRate;
     double exposureTime;
     std::string pixelFormat;
+    unsigned int cameraId;
     unsigned int packetSize;
     double bandwidth;
     int numBuffers;

@@ -54,7 +54,7 @@ Recorder::~Recorder()
     PvUnInitialize();
 }
 
-bool Recorder::openCamera()
+bool Recorder::openCamera(unsigned long camId)
 {
     clearError();
 
@@ -74,7 +74,8 @@ bool Recorder::openCamera()
     CameraInfoVector::const_iterator it = camInfoVec.begin();
     for (; it != camInfoVec.end() && !m_device; ++it)
     {
-        if (it->PermittedAccess & ePvAccessMaster)
+        if ((camId == 0 || camId == it->UniqueId) &&
+                (it->PermittedAccess & ePvAccessMaster) != 0)
         {
             err = PvCameraOpen(it->UniqueId, ePvAccessMaster, &m_device);
             if (err != ePvErrSuccess)
