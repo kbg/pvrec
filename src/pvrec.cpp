@@ -73,7 +73,8 @@ int main(int argc, char **argv)
         cout << opts.help() << endl << endl;
         return E_OK;
     case CmdLineOptions::Version:
-        cout << "PvRec version " << PVREC_VERSION_STRING << endl;
+        cout << "PvRec version " << PVREC_VERSION_STRING << "\n"
+                << PVREC_COPYRIGHT_STRING << endl;
         return E_OK;
     }
 

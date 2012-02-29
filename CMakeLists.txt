@@ -4,9 +4,10 @@ project(PvRec)
 # Version informations -----------------------------------------------------
 
 set(PVREC_VERSION_MAJOR 1)
-set(PVREC_VERSION_MINOR 0)
+set(PVREC_VERSION_MINOR 1)
 set(PVREC_VERSION_RELEASE 0)
 set(PVREC_VERSION_STRING "${PVREC_VERSION_MAJOR}.${PVREC_VERSION_MINOR}.${PVREC_VERSION_RELEASE}")
+set(PVREC_COPYRIGHT_STRING "Copyright (c) 2010-2012 Kolja Glogowski")
 configure_file(src/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
 
 # Find libraries -----------------------------------------------------------
