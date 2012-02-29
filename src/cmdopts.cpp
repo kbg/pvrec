@@ -58,7 +58,9 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
       packetSize(DefaultPacketSize),
       bandwidth(DefaultBandwidth),
       numBuffers(DefaultNumBuffers),
-      force(false)
+      force(false),
+      list(false),
+      info(false)
 {
     if (argc > 0)
         m_appName = argv[0];
@@ -66,7 +68,7 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
 
 CmdLineOptions::Result CmdLineOptions::parse()
 {
-    static const char *short_opts = "n:r:e:b:c:N:m:B:fVh";
+    static const char *short_opts = "n:r:e:b:c:N:m:B:fliVh";
     static const struct option long_opts[] = {
         { "count", required_argument, 0, 'n' },
         { "framerate", required_argument, 0, 'r' },
@@ -77,6 +79,8 @@ CmdLineOptions::Result CmdLineOptions::parse()
         { "mtu", required_argument, 0, 'm' },
         { "bandwidth", required_argument, 0, 'B' },
         { "force", no_argument, 0, 'f' },
+        { "list", no_argument, 0, 'l' },
+        { "info", no_argument, 0, 'i' },
         { "version", no_argument, 0, 'V' },
         { "help", no_argument, 0, 'h' },
         { 0, 0, 0, 0 }
@@ -173,6 +177,12 @@ CmdLineOptions::Result CmdLineOptions::parse()
         case 'f':
             force = true;
             break;
+        case 'l':
+            list = true;
+            break;
+        case 'i':
+            info = true;
+            break;
         case 'V':
             return Version;
         case 'h':
@@ -182,6 +192,10 @@ CmdLineOptions::Result CmdLineOptions::parse()
             return Error;
         }
     }
+
+    // no filename needed for --list or --info
+    if (list || info)
+        return Ok;
 
     if (optind >= m_argc) {
         cerr << m_appName << ": no filename specified." << endl;
@@ -219,6 +233,8 @@ std::string CmdLineOptions::help() const
        << "  -m, --mtu         Packet size (default: auto)\n"
        << "  -B, --bandwidth   Stream bandwidth in MB/s (default: " << DefaultBandwidth << ")\n"
        << "  -f, --force       Overwrite the output file if it already exists\n"
+       << "  -l, --list        List available cameras and quit\n"
+       << "  -i, --info        Show informations on the available cameras and quit\n"
        << "  -V, --version     Show program version and quit\n"
        << "  -h, --help        Show this help message and quit";
     return ss.str();

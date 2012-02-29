@@ -51,6 +51,8 @@ public:
     double bandwidth;
     int numBuffers;
     bool force;
+    bool list;
+    bool info;
 
 private:
     int m_argc;

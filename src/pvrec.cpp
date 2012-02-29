@@ -31,6 +31,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
+#include <cstring>
 using namespace std;
 
 enum {
@@ -40,6 +42,22 @@ enum {
     E_ERR_SETUP = 3,
     E_ERR_RECORD = 4
 };
+
+inline string permittedAccessString(unsigned long permittedAccess) {
+    if ((permittedAccess & ePvAccessMaster) != 0)
+        return string("Master");
+    else if ((permittedAccess & ePvAccessMonitor) != 0)
+        return string("Monitor");
+    return string("None");
+}
+
+inline string interfaceTypeString(tPvInterface interfaceType) {
+    if (interfaceType == ePvInterfaceEthernet)
+        return string("GigE");
+    else if (interfaceType == ePvInterfaceFirewire)
+        return string("Firewire");
+    return string("Unknown");
+}
 
 int main(int argc, char **argv)
 {
@@ -52,10 +70,64 @@ int main(int argc, char **argv)
         cout << opts.help_hint() << endl;
         return E_ERR_GENERIC;
     case CmdLineOptions::Help:
-        cout << opts.help() << endl;
+        cout << opts.help() << endl << endl;
         return E_OK;
     case CmdLineOptions::Version:
         cout << "PvRec version " << PVREC_VERSION_STRING << endl;
+        return E_OK;
+    }
+
+    Recorder rec(opts.numBuffers);
+    cout << "PvApi Version: " << rec.apiVersionStr() << endl;
+
+    if (opts.list || opts.info)
+    {
+        cout << "Searching for cameras..." << endl;
+        Recorder::CameraInfoVector camInfoVec = rec.availableCameras(5000);
+
+        if (camInfoVec.size() < 1) {
+            cerr << "Error: No camera found." << endl;
+            return E_ERR_OPEN;
+        }
+
+        if (opts.list) {
+            cout << "\nAvailable Cameras:\n";
+            size_t maxNameSize = 0;
+            Recorder::CameraInfoVector::const_iterator it = camInfoVec.begin();
+            for (; it != camInfoVec.end(); ++it)
+                maxNameSize = max(strlen(it->CameraName), maxNameSize);
+
+            for (it = camInfoVec.begin(); it != camInfoVec.end(); ++it) {
+                cout << "    "
+                     << setw(maxNameSize)
+                     << it->CameraName << " - "
+                     << it->SerialNumber << " - "
+                     << "UniqueId: " << it->UniqueId << "\n";
+            }
+        }
+
+        if (opts.info) {
+            int i = 0;
+            Recorder::CameraInfoVector::const_iterator it = camInfoVec.begin();
+            for (; it != camInfoVec.end(); ++it, ++i) {
+                if (opts.cameraId != 0 && opts.cameraId != it->UniqueId)
+                    continue;
+                cout << "\nCamera " << i << ":"
+                     << "\n    UniqueId .......... " << it->UniqueId
+                     << "\n    CameraName ........ " << it->CameraName
+                     << "\n    ModelName ......... " << it->ModelName
+                     << "\n    SerialNumber ...... " << it->SerialNumber
+                     << "\n    FirmwareVersion ... " << it->FirmwareVersion
+                     << "\n    PermittedAccess ... "
+                            << permittedAccessString(it->PermittedAccess)
+                     << "\n    InterfaceType ..... "
+                            << interfaceTypeString(it->InterfaceType)
+                     << "\n    InterfaceId ....... " << it->InterfaceId
+                     << endl;
+            }
+        }
+
+        cout << endl;
         return E_OK;
     }
 
@@ -65,9 +137,6 @@ int main(int argc, char **argv)
         return E_ERR_GENERIC;
     }
 
-    Recorder rec(opts.numBuffers);
-    cout << "PvApi Version: " << rec.apiVersionStr() << endl;
-
     cout << "Opening camera... " << flush;
     if (!rec.openCamera(opts.cameraId)) {
         cout << endl;
@@ -76,18 +145,17 @@ int main(int argc, char **argv)
     }
     cout << "Done" << endl;
 
-    cout << endl;
-    cout << "Camera Infos --------------------------" << endl;
     tPvCameraInfoEx camInfo = rec.cameraInfo();
-    cout << "        UniqueId: " << camInfo.UniqueId << "\n"
-         << "      CameraName: " << camInfo.CameraName << "\n"
-         << "       ModelName: " << camInfo.ModelName << "\n"
-         << "    SerialNumber: " << camInfo.SerialNumber << "\n"
-         << " FirmwareVersion: " << camInfo.FirmwareVersion << "\n"
-         << "      IP Address: " << rec.ipAddress() << "\n"
-         << "          Sensor: " << rec.sensorWidth() << "x"
-                                 << rec.sensorHeight() << "@"
-                                 << rec.sensorBits()
+    cout << "\nCamera infos:"
+         << "\n    UniqueId .......... " << camInfo.UniqueId
+         << "\n    CameraName ........ " << camInfo.CameraName
+         << "\n    ModelName ......... " << camInfo.ModelName
+         << "\n    SerialNumber ...... " << camInfo.SerialNumber
+         << "\n    FirmwareVersion ... " << camInfo.FirmwareVersion
+         << "\n    IP Address ........ " << rec.ipAddress()
+         << "\n    Sensor ............ " << rec.sensorWidth() << "x"
+                                         << rec.sensorHeight() << "@"
+                                         << rec.sensorBits()
          << endl;
 
     if (!rec.setFrameRate(opts.frameRate) ||
@@ -100,14 +168,13 @@ int main(int argc, char **argv)
         return E_ERR_SETUP;
     }
 
-    cout << endl;
-    cout << "Settings ------------------------------" << endl;
-    cout << "       FrameRate: " << rec.frameRate() << " Hz (max)\n"
-         << "    ExposureTime: " << rec.exposureTime() << " ms\n"
-         << "     PixelFormat: " << rec.pixelFormat() << "\n"
-         << "         Buffers: " << rec.numBuffers() << "\n"
-         << "      PacketSize: " << rec.packetSize() << " bytes\n"
-         << "       Bandwidth: " << rec.bandwidth() << " MB/s"
+    cout << "\nSettings:"
+         << "\n    FrameRate ......... " << rec.frameRate() << " Hz (max)"
+         << "\n    ExposureTime ...... " << rec.exposureTime() << " ms"
+         << "\n    PixelFormat ....... " << rec.pixelFormat()
+         << "\n    Buffers ........... " << rec.numBuffers()
+         << "\n    PacketSize ........ " << rec.packetSize() << " bytes"
+         << "\n    Bandwidth ......... " << rec.bandwidth() << " MB/s"
          << endl;
 
     cout << endl;
