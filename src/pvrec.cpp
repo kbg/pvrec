@@ -162,6 +162,8 @@ int main(int argc, char **argv)
     if (!rec.setFrameRate(opts.frameRate) ||
         !rec.setExposureTime(opts.exposureTime) ||
         !rec.setPixelFormat(opts.pixelFormat) ||
+        !rec.setTriggerMode(opts.triggerMode) ||
+        !rec.setTriggerDelay(opts.triggerDelay) ||
         !rec.setPacketSize(opts.packetSize) ||
         !rec.setBandwidth(opts.bandwidth))
     {
@@ -173,6 +175,8 @@ int main(int argc, char **argv)
          << "\n    FrameRate ......... " << rec.frameRate() << " Hz (max)"
          << "\n    ExposureTime ...... " << rec.exposureTime() << " ms"
          << "\n    PixelFormat ....... " << rec.pixelFormat()
+         << "\n    TriggerMode ....... " << rec.triggerMode()
+         << "\n    TriggerDelay ...... " << rec.triggerDelay() << " us"
          << "\n    Buffers ........... " << rec.numBuffers()
          << "\n    PacketSize ........ " << rec.packetSize() << " bytes"
          << "\n    Bandwidth ......... " << rec.bandwidth() << " MB/s"

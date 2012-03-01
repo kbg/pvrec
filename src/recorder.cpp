@@ -190,6 +190,18 @@ bool Recorder::initCamera()
         return false;
     }
 
+    err = PvAttrEnumSet(m_device, "SyncOut1Mode", "FrameTrigger");
+    if (err != ePvErrSuccess) {
+        setPvError("Cannot set SyncOut1Mode.", err);
+        return false;
+    }
+
+    err = PvAttrEnumSet(m_device, "SyncOut2Mode", "FrameTrigger");
+    if (err != ePvErrSuccess) {
+        setPvError("Cannot set SyncOut2Mode.", err);
+        return false;
+    }
+
     if (!setPixelFormat("Mono8"))
         return false;
 
@@ -470,7 +482,7 @@ bool Recorder::setPixelFormat(const std::string &pixelFormat)
 {
     tPvErr err = PvAttrEnumSet(m_device, "PixelFormat", pixelFormat.c_str());
     if (err != ePvErrSuccess) {
-        setPvError("Cannor set pixel format.", err);
+        setPvError("Cannot set pixel format.", err);
         return false;
     }
     return true;
@@ -481,6 +493,40 @@ std::string Recorder::pixelFormat() const
     char value[32];
     tPvErr err = PvAttrEnumGet(m_device, "PixelFormat", value, 32, 0);
     return (err == ePvErrSuccess) ? value : "";
+}
+
+bool Recorder::setTriggerMode(const std::string &triggerMode)
+{
+    tPvErr err = PvAttrEnumSet(m_device, "FrameStartTriggerMode", triggerMode.c_str());
+    if (err != ePvErrSuccess) {
+        setPvError("Cannot set trigger mode.", err);
+        return false;
+    }
+    return true;
+}
+
+std::string Recorder::triggerMode() const
+{
+    char value[32];
+    tPvErr err = PvAttrEnumGet(m_device, "FrameStartTriggerMode", value, 32, 0);
+    return (err == ePvErrSuccess) ? value : "";
+}
+
+bool Recorder::setTriggerDelay(unsigned int triggerDelay)
+{
+    tPvErr err = PvAttrUint32Set(m_device, "FrameStartTriggerDelay", triggerDelay);
+    if (err != ePvErrSuccess) {
+        setPvError("Cannot set trigger delay.", err);
+        return false;
+    }
+    return true;
+}
+
+unsigned int Recorder::triggerDelay() const
+{
+    tPvUint32 value;
+    tPvErr err = PvAttrUint32Get(m_device, "FrameStartTriggerDelay", &value);
+    return (err == ePvErrSuccess) ? value : 0;
 }
 
 bool Recorder::setPacketSize(unsigned int packetSize)

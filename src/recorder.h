@@ -57,6 +57,12 @@ public:
     bool setPixelFormat(const std::string &pixelFormat);
     std::string pixelFormat() const;
 
+    bool setTriggerMode(const std::string &triggerMode);
+    std::string triggerMode() const;
+
+    bool setTriggerDelay(unsigned int triggerDelay);
+    unsigned int triggerDelay() const;
+
     bool setPacketSize(unsigned int packetSize);
     unsigned int packetSize() const;
 

@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 using std::cerr;
 using std::endl;
 
@@ -34,8 +35,10 @@ static const int DefaultNumFrames = 1;
 static const float DefaultFrameRate = 20.0;
 static const double DefaultExposureTime = 15.0;
 static const int DefaultPixelBits = 8;
-static const int DefaultCameraId = 0;
 static const std::string DefaultPixelFormat = "Mono8";
+static const std::string DefaultTriggerMode = "FixedRate";
+static const unsigned int DefaultTriggerDelay = 0;
+static const int DefaultCameraId = 0;
 static const int DefaultNumBuffers = 10;
 static const unsigned int DefaultPacketSize = 0;
 static const double DefaultBandwidth = 115.0;
@@ -54,6 +57,8 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
       frameRate(DefaultFrameRate),
       exposureTime(DefaultExposureTime),
       pixelFormat(DefaultPixelFormat),
+      triggerMode(DefaultTriggerMode),
+      triggerDelay(DefaultTriggerDelay),
       cameraId(DefaultCameraId),
       packetSize(DefaultPacketSize),
       bandwidth(DefaultBandwidth),
@@ -68,12 +73,14 @@ CmdLineOptions::CmdLineOptions(int argc, char **argv)
 
 CmdLineOptions::Result CmdLineOptions::parse()
 {
-    static const char *short_opts = "n:r:e:b:c:N:m:B:fliVh";
+    static const char *short_opts = "n:r:e:b:t:d:c:N:m:B:fliVh";
     static const struct option long_opts[] = {
         { "count", required_argument, 0, 'n' },
         { "framerate", required_argument, 0, 'r' },
         { "exposure", required_argument, 0, 'e' },
         { "bits", required_argument, 0, 'b' },
+        { "trigger", required_argument, 0, 't' },
+        { "delay", required_argument, 0, 'd' },
         { "camera", required_argument, 0, 'c' },
         { "buffers", required_argument, 0, 'N' },
         { "mtu", required_argument, 0, 'm' },
@@ -125,7 +132,7 @@ CmdLineOptions::Result CmdLineOptions::parse()
                 return Error;
             }
             break;
-        case 'b':
+        case 'b': {
             int pixelBits;
             if (!fromString(pixelBits, optarg)) {
                 cerr << m_appName << ": -b must be an integer." << endl;
@@ -137,6 +144,31 @@ CmdLineOptions::Result CmdLineOptions::parse()
                 pixelFormat = "Mono16";
             else {
                 cerr << m_appName << ": -b must be 8 or 16" << endl;
+                return Error;
+            }}
+            break;
+        case 't': {
+            std::string ta(optarg);
+            std::transform(ta.begin(), ta.end(), ta.begin(), ::tolower);
+            if (ta == "fixedrate")
+                triggerMode = "FixedRate";
+            else if (ta == "freerun")
+                triggerMode = "Freerun";
+            else if (ta == "syncin1")
+                triggerMode = "SyncIn1";
+            else if (ta == "syncin2")
+                triggerMode = "SyncIn2";
+            else {
+                cerr << m_appName
+                     << ": -t must be FixedRate, Freerun, SyncIn1 or SyncIn2."
+                     << endl;
+                return Error;
+            }}
+            break;
+        case 'd':
+            if (!fromString(triggerDelay, optarg)) {
+                cerr << m_appName << ": -d must be an unsigned integer."
+                     << endl;
                 return Error;
             }
             break;
@@ -226,8 +258,10 @@ std::string CmdLineOptions::help() const
        << "Options:\n"
        << "  -n, --count       Number of frames to record (default: " << DefaultNumFrames << ")\n"
        << "  -r, --framerate   Maximum frame rate in Hz (default: " << DefaultFrameRate << ")\n"
-       << "  -e, --exposure    Exposure time in ms (default: " << DefaultExposureTime << ")\n"
+       << "  -e, --exposure    Exposure time in miliseconds (default: " << DefaultExposureTime << ")\n"
        << "  -b, --bits        Bits per pixel, 8 or 16 (default: " << DefaultPixelBits << ")\n"
+       << "  -t, --trigger     Trigger mode (default: " << DefaultTriggerMode << ")\n"
+       << "  -d, --delay       Trigger delay in microseconds (default: " << DefaultTriggerMode << ")\n"
        << "  -c, --camera      Select camera by its unique ID (default: auto)\n"
        << "  -N, --buffers     Number of frame buffers (default: " << DefaultNumBuffers << ")\n"
        << "  -m, --mtu         Packet size (default: auto)\n"
